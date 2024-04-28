@@ -1,5 +1,6 @@
 <script lang='ts'>
     import { Button } from "$lib/components/ui/button";
+    import * as Table from '$lib/components/ui/table';
     import { get_db, start_pyodide } from "$lib/db_utils";
     import { onMount } from "svelte";
 
@@ -54,6 +55,8 @@
     let active_table = null;
     let chosen_columns: string[] = [];
 
+    $: execute_query(shown_text)
+
     function set_active_table(table) {
         active_table = table;
         if (ast === null) {
@@ -61,6 +64,7 @@
                 ast = parse_one('select * from ${active_table}')
                 ast
             `)
+            chosen_columns = ['*']
         } else {
             ast = ast.from_(active_table)
         }
@@ -80,6 +84,22 @@
     function reset_columns() {
         ast.set('expressions', [])
         ast = ast
+        chosen_columns = []
+        query_result = undefined;
+    }
+
+    let query_result;
+    function execute_query(sql) {
+        if (ready && (sql !== '') && (chosen_columns.length > 0)) {
+            console.log('executing query', sql)
+            conn.query(sql)
+            .then((res) => {
+                query_result = res
+                console.log('query_result', res)
+            })
+        } else {
+            return null;
+        }
     }
     
 
@@ -113,4 +133,36 @@
 {:else}
     <p>No columns available</p>
 {/if}
+</div>
+
+<div class="section">
+<h2>Result</h2>
+  {#if query_result !== undefined}
+
+    <Table.Root>
+        <Table.Caption>A list of your result.</Table.Caption>
+        <Table.Header>
+          <Table.Row>
+            {#each query_result.schema.fields as f}
+                <Table.Head>{f.name}</Table.Head>
+            {/each}
+          
+            
+            </Table.Row>
+        </Table.Header>
+        <Table.Body>
+            {#each query_result as row}
+          <Table.Row>
+            
+            {#each query_result.schema.fields as f}
+                <Table.Cell>{row[f.name]}</Table.Cell>
+            {/each}
+            
+          </Table.Row>
+          {/each}
+        </Table.Body>
+      </Table.Root>
+  {/if}
+
+
 </div>
