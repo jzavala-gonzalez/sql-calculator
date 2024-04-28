@@ -130,6 +130,10 @@
         </div>
         <Button on:click={reset_columns}>Reset columns</Button>
     
+{:else if available_tables.length === 0}
+    <p>No tables available yet</p>
+{:else if active_table === null}
+    <p>Choose a table first!</p>
 {:else}
     <p>No columns available</p>
 {/if}
