@@ -29,7 +29,8 @@ export async function get_db() {
     await db.registerFileText('penguins.csv', penguins_csv_text); // just "registers" file, doesn't create table
     const conn = await db.connect();
     await conn.query(`create or replace table penguins as (from 'penguins.csv')`)
-    // console.log('test query') // i dont even KNOW
+    // (await conn.query(`show tables`)).getChild('name').toArray() // returns ['penguins']
+    console.log('test query', (await conn.query(`show tables`)).getChild('name').toArray()) // i dont even KNOW
     // console.table((await conn.query(`from penguins`)).toArray())
     return {db, conn};
 }
