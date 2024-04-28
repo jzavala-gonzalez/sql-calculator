@@ -43,3 +43,4 @@ export async function start_pyodide() {
     return pyodide
 }
 
+// from sqlglot.expressions import From, Table
